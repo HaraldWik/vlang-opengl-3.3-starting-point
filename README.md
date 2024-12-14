@@ -23,3 +23,8 @@ The C project is compiled using clang but I persume that gcc works fine too
 
 The glShaderSource function is cursed :|
 And the gl folder is the custom binding, feel free to use it!
+
+**To People with OpenGL knowledge**
+
+Please open an issue or discussion, so this can repo can be as good as possible,
+since I'm not very good with OpenGl all help is good!
