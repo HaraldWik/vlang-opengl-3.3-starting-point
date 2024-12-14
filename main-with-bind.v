@@ -35,21 +35,23 @@ fn C.glGetProgramInfoLog(program u32, buf_size int, length &int, info_log &char)
 fn C.glewInit() int
 fn C.glDeleteShader(u32)
 
-fn compile_shader(shader_source voidptr, shader_type u32) u32 {
+fn compile_shader(shader_source string, shader_type u32) u32 {
 	unsafe {
 		shader := C.glCreateShader(shader_type)
-		C.glShaderSource(shader, 1, &&char(malloc(sizeof(shader_source))), C.NULL) // <--- most likely a memory leak
+		C.glShaderSource(shader, 1, &&char(&shader_source.str), C.NULL)
 		C.glCompileShader(shader)
 
 		// Check for compile errors
 		success := 0
 		C.glGetShaderiv(shader, C.GL_COMPILE_STATUS, &success)
-		if success != 0 {
-			log_length := 0
+		if success == 0 {
+			mut log_length := 0
 			C.glGetShaderiv(shader, C.GL_INFO_LOG_LENGTH, &log_length)
-			info_log := malloc(log_length)
+			info_log := malloc(log_length + 1) // +1 for null terminator
+			info_log[log_length] = 0 // Ensure null-termination
 			C.glGetShaderInfoLog(shader, log_length, C.NULL, info_log)
-			println('ERROR: Shader compilation failed: ${info_log}')
+			println('ERROR: Shader compilation failed for type: ${shader_type}')
+			println('Shader error log: ' + tos_clone(info_log))
 			free(info_log)
 			C.glDeleteShader(shader)
 			return 0
@@ -65,18 +67,20 @@ fn link_program(vertex_shader u32, fragment_shader u32) u32 {
 		C.glAttachShader(program, fragment_shader)
 		C.glLinkProgram(program)
 
-		succes := 0
-		C.glGetProgramiv(program, C.GL_LINK_STATUS, &succes)
-		if succes != 0 {
-			log_length := 0
+		success := 0
+		C.glGetProgramiv(program, C.GL_LINK_STATUS, &success)
+		if success == 0 {
+			mut log_length := 0
 			C.glGetProgramiv(program, C.GL_INFO_LOG_LENGTH, &log_length)
-			info_log := malloc(log_length)
-			C.glGetShaderInfoLog(program, log_length, C.NULL, info_log)
-			println('ERROR: Program linking failed: ${info_log}')
+			info_log := malloc(log_length + 1) // +1 for null terminator
+			info_log[log_length] = 0 // Ensure null-termination
+			C.glGetProgramInfoLog(program, log_length, C.NULL, info_log)
+			println('ERROR: Program linking failed')
+			println('Program error log: ' + tos_clone(info_log))
 			free(info_log)
+			C.glDeleteProgram(program)
 			return 0
 		}
-
 		return program
 	}
 }
@@ -116,10 +120,10 @@ fn main() {
 
 	// Vertex data
 	vertices := [
-		f32(0.0),
-		//  Vertex 1
+		f32(0.0), // I dont even know
 		0.5,
-		0.0, // Position
+		0.0,
+		// Vertex 1
 		1.0,
 		0.0,
 		0.0, // Color (Red)
@@ -131,8 +135,8 @@ fn main() {
 		1.0,
 		0.0,
 		0.5, // Color (Green)
-		-0.5,
 		// Vertex 3
+		-0.5,
 		0.0, // Position
 		0.0,
 		0.0,
@@ -143,8 +147,8 @@ fn main() {
 	vert_code := os.read_file('shaders/shader.vert') or { panic(err) }
 	frag_code := os.read_file('shaders/shader.frag') or { panic(err) }
 
-	vertex_shader := compile_shader(voidptr(vert_code.str), u32(C.GL_VERTEX_SHADER))
-	fragment_shader := compile_shader(voidptr(frag_code.str), u32(C.GL_FRAGMENT_SHADER))
+	vertex_shader := compile_shader(vert_code, u32(C.GL_VERTEX_SHADER))
+	fragment_shader := compile_shader(frag_code, u32(C.GL_FRAGMENT_SHADER))
 	shader_program := link_program(vertex_shader, fragment_shader)
 
 	if shader_program == 0 {

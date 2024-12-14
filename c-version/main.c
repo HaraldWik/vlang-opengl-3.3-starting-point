@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
     glBindVertexArray(0);
 
     // OpenGL settings
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black background
+    glClearColor(0.1, 0.3, 0.6, 1.0); // Light Blue Color
 
     // Main render loop
     int running = 1;

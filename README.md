@@ -28,3 +28,7 @@ And the gl folder is the custom binding, feel free to use it!
 
 Please open an issue or discussion, so this can repo can be as good as possible,
 since I'm not very good with OpenGl all help is good!
+
+**Showcase**
+
+![image](https://github.com/user-attachments/assets/5e3d1e4a-470d-471a-985b-7844f7988b58)
