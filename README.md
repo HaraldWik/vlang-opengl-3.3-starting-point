@@ -18,3 +18,4 @@ The C project is compiled using clang but I persume that gcc works fine too
 
 **Note**
 The glShaderSource function is cursed :|
+And the gl folder is the custom binding, feel free to use it!
