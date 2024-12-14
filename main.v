@@ -8,7 +8,7 @@ import gl.glew
 fn compile_shader(shader_source voidptr, shader_type u32) u32 {
 	unsafe {
 		shader := C.glCreateShader(shader_type)
-		C.glShaderSource(shader, 1, &&char(malloc(sizeof(shader_source))), C.NULL)
+		C.glShaderSource(shader, 1, &&char(malloc(sizeof(shader_source))), C.NULL) // <--- most likely a memory leak
 		C.glCompileShader(shader)
 
 		// Check for compile errors
