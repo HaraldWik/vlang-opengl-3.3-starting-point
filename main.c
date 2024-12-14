@@ -2,7 +2,6 @@
 #include <GL/glew.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <lib.h>
 
 // Shader sources
 const char *vertexShaderSource = "#version 330 core\n"

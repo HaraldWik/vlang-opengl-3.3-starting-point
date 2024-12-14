@@ -1,9 +1,39 @@
-module main
-
 import sdl
 import os
-import gl
-import gl.glew
+
+#preinclude <GL/glew.h>
+#include <GL/gl.h>
+
+#flag -lGLEW -lGL -lGLU
+
+// Binding for OpenGL functions
+fn C.glVertexAttribPointer(index u32, size int, type_ u32, normalized u8, stride int, pointer voidptr)
+fn C.glGenVertexArrays(n int, arrays voidptr)
+fn C.glGenBuffers(n int, buffers voidptr)
+fn C.glBindVertexArray(array u32)
+fn C.glBindBuffer(target u32, buffer u32)
+fn C.glBufferData(target u32, size int, data voidptr, usage u32)
+fn C.glEnableVertexAttribArray(index u32)
+fn C.glUseProgram(program u32)
+fn C.glClear(mask u32)
+fn C.glClearColor(red f32, green f32, blue f32, alpha f32)
+fn C.glViewport(x int, y int, width int, height int)
+fn C.glDrawArrays(mode u32, first int, count int)
+fn C.glDeleteVertexArrays(n int, arrays voidptr)
+fn C.glDeleteBuffers(n int, buffers voidptr)
+fn C.glDeleteProgram(program u32)
+fn C.glCreateShader(typ_ u32) u32
+fn C.glShaderSource(shader u32, count int, string &&char, length &int)
+fn C.glCompileShader(shader u32)
+fn C.glGetShaderiv(shader u32, pname u32, params &int)
+fn C.glGetShaderInfoLog(shader u32, buf_size int, length &int, info_log &char)
+fn C.glCreateProgram() u32
+fn C.glAttachShader(program u32, shader u32)
+fn C.glLinkProgram(program u32)
+fn C.glGetProgramiv(program u32, pname u32, params &int)
+fn C.glGetProgramInfoLog(program u32, buf_size int, length &int, info_log &char)
+fn C.glewInit() int
+fn C.glDeleteShader(u32)
 
 fn compile_shader(shader_source voidptr, shader_type u32) u32 {
 	unsafe {
@@ -76,7 +106,7 @@ fn main() {
 	}
 
 	// Initialize GLEW
-	if C.glewInit() != glew.ok {
+	if C.glewInit() != C.GLEW_OK {
 		println('GLEW initialization failed')
 		sdl.gl_delete_context(gl_context)
 		sdl.destroy_window(window)
@@ -132,10 +162,10 @@ fn main() {
 	C.glBindBuffer(0x8892, vbo) // GL_ARRAY_BUFFER
 	C.glBufferData(0x8892, vertices.len * int(sizeof(f32)), &vertices[0], 0x88E4) // GL_STATIC_DRAW
 
-	C.glVertexAttribPointer(0, 3, gl.gl_float, 0, 6 * sizeof(f32), unsafe { nil }) // GL_FLOAT
+	C.glVertexAttribPointer(0, 3, 0x1406, 0, 6 * sizeof(f32), unsafe { nil }) // GL_FLOAT
 	C.glEnableVertexAttribArray(0)
 
-	C.glVertexAttribPointer(1, 3, gl.gl_float, 0, 6 * sizeof(f32), voidptr(3 * sizeof(f32))) // GL_FLOAT
+	C.glVertexAttribPointer(1, 3, 0x1406, 0, 6 * sizeof(f32), voidptr(3 * sizeof(f32))) // GL_FLOAT
 	C.glEnableVertexAttribArray(1)
 
 	C.glBindBuffer(0x8892, 0)
