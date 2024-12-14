@@ -89,7 +89,7 @@ fn main() {
 	}
 
 	// Create SDL window
-	window := sdl.create_window('OpenGL Window'.str, 0, 0, 800, 600, u32(sdl.WindowFlags.opengl))
+	window := sdl.create_window('OpenGL 3.3 Window'.str, 0, 0, 800, 600, u32(sdl.WindowFlags.opengl) | u32(sdl.WindowFlags.resizable))
 	if window == 0 {
 		println('SDL_CreateWindow failed: ${sdl.get_error()}')
 		sdl.quit()
@@ -117,31 +117,34 @@ fn main() {
 	// Vertex data
 	vertices := [
 		f32(0.0),
+		//  Vertex 1
 		0.5,
-		0.0,
+		0.0, // Position
 		1.0,
 		0.0,
-		0.0, // Vertex 1 (Red)
+		0.0, // Color (Red)
 		-0.5,
-		-0.5,
+		-0.5, // Position
+		// Vertex 2
 		0.0,
-		0.0,
+		0.0, // Position
 		1.0,
-		0.0, // Vertex 2 (Green)
-		0.5,
+		0.0,
+		0.5, // Color (Green)
 		-0.5,
+		// Vertex 3
+		0.0, // Position
 		0.0,
 		0.0,
-		0.0,
-		1.0, // Vertex 3 (Blue)
+		1.0, // Color (Blue)
 	]
 
 	// Compile shaders
-	vert_code := os.read_file('shader.vert') or { panic(err) }
-	frag_code := os.read_file('shader.frag') or { panic(err) }
+	vert_code := os.read_file('shaders/shader.vert') or { panic(err) }
+	frag_code := os.read_file('shaders/shader.frag') or { panic(err) }
 
-	vertex_shader := compile_shader(voidptr(vert_code.str), 0x8B31) // GL_VERTEX_SHADER
-	fragment_shader := compile_shader(voidptr(frag_code.str), 0x8B30) // GL_FRAGMENT_SHADER
+	vertex_shader := compile_shader(voidptr(vert_code.str), u32(C.GL_VERTEX_SHADER))
+	fragment_shader := compile_shader(voidptr(frag_code.str), u32(C.GL_FRAGMENT_SHADER))
 	shader_program := link_program(vertex_shader, fragment_shader)
 
 	if shader_program == 0 {
@@ -159,26 +162,25 @@ fn main() {
 	C.glGenBuffers(1, &vbo)
 
 	C.glBindVertexArray(vao)
-	C.glBindBuffer(0x8892, vbo) // GL_ARRAY_BUFFER
-	C.glBufferData(0x8892, vertices.len * int(sizeof(f32)), &vertices[0], 0x88E4) // GL_STATIC_DRAW
+	C.glBindBuffer(C.GL_ARRAY_BUFFER, vbo)
+	C.glBufferData(C.GL_ARRAY_BUFFER, vertices.len * int(sizeof(f32)), &vertices[0], C.GL_STATIC_DRAW)
 
-	C.glVertexAttribPointer(0, 3, 0x1406, 0, 6 * sizeof(f32), unsafe { nil }) // GL_FLOAT
+	C.glVertexAttribPointer(0, 3, C.GL_FLOAT, 0, 6 * sizeof(f32), unsafe { nil })
 	C.glEnableVertexAttribArray(0)
 
-	C.glVertexAttribPointer(1, 3, 0x1406, 0, 6 * sizeof(f32), voidptr(3 * sizeof(f32))) // GL_FLOAT
+	C.glVertexAttribPointer(1, 3, C.GL_FLOAT, 0, 6 * sizeof(f32), voidptr(3 * sizeof(f32)))
 	C.glEnableVertexAttribArray(1)
 
-	C.glBindBuffer(0x8892, 0)
+	C.glBindBuffer(C.GL_ARRAY_BUFFER, 0)
 	C.glBindVertexArray(0)
 
-	// OpenGL settings
-	C.glClearColor(0.0, 0.0, 0.0, 1.0) // Black background
+	C.glClearColor(0.1, 0.3, 0.6, 1.0) // Light Blue Color
 
 	// Main render loop
 	mut running := true
 	for running {
-		mut event := C.SDL_Event{}
-		for C.SDL_PollEvent(&event) != 0 {
+		mut event := sdl.Event{}
+		for sdl.poll_event(&event) != 0 {
 			if unsafe { event.type == sdl.EventType.quit } {
 				running = false
 			}
@@ -188,17 +190,12 @@ fn main() {
 		mut height := 0
 		C.SDL_GetWindowSize(window, &width, &height)
 
-		if width == 0 || height == 0 {
-			println('Invalid window size.')
-			break
-		}
-
 		C.glViewport(0, 0, width, height)
-		C.glClear(0x00004000) // GL_COLOR_BUFFER_BIT
+		C.glClear(C.GL_COLOR_BUFFER_BIT)
 
 		C.glUseProgram(shader_program)
 		C.glBindVertexArray(vao)
-		C.glDrawArrays(0x0004, 0, 3) // GL_TRIANGLES
+		C.glDrawArrays(C.GL_TRIANGLES, 0, 3)
 		C.glBindVertexArray(0)
 
 		sdl.gl_swap_window(window)

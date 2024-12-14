@@ -16,6 +16,9 @@ pub const gl_unsigned_int = u32(C.GL_UNSIGNED_INT)
 pub const gl_int = u32(C.GL_INT)
 pub const double = u32(C.GL_DOUBLE)
 
+// Other
+pub const color_buffer_bit = u32(C.GL_COLOR_BUFFER_BIT)
+
 // Error Codes
 pub const no_error = u32(C.GL_NO_ERROR)
 pub const invalid_enum = u32(C.GL_INVALID_ENUM)
