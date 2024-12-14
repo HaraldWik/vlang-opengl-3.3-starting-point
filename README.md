@@ -8,6 +8,7 @@ main.v <-- Uses my custom bind
 main-with-bind.v <-- Uses the raw C imports
 
 **C**
+
 To compile the C project use this : clang -o my_program main.c -I/usr/include/SDL2 -lSDL2 -lGL -lGLEW -lm
 
 The C project is the only one that acctualy works :/
